@@ -18,31 +18,54 @@ Add to your Claude Code settings (`~/.claude/settings.json`):
 
 ## Installation
 
-### Option 1: Via Marketplace (Recommended)
+Run these commands inside Claude Code:
 
-```bash
-# Add the Tavily marketplace
-claude plugin marketplace add tavily-ai/tavily-plugin
+### Option 1: From GitHub (Recommended)
 
-# Install the plugin
-claude plugin install tavily@tavily-plugins
+```
+/plugin marketplace add tavily-ai/tavily-plugin
+/plugin install tavily@tavily-plugin
 ```
 
-### Option 2: Direct Install
+### Option 2: From Local Directory
 
-```bash
-claude plugin install github:tavily-ai/tavily-plugin
+```
+/plugin marketplace add /path/to/tavily-plugin
+/plugin install tavily@tavily-plugin
 ```
 
 ## Skills
 
-The plugin includes three agent skills that Claude can use automatically:
+The plugin includes three skills that Claude can use automatically:
 
 | Skill | Description |
 |-------|-------------|
-| **tavily-api** | Reference documentation for Tavily's search, extract, crawl, and research APIs. Includes best practices for agentic workflows. |
+| **tavily-api** | Reference documentation for Tavily's search, extract, crawl, and research APIs. Claude uses this automatically when you ask it to integrate Tavily into your code. |
 | **research** | CLI tool for AI-synthesized research with citations. Supports structured JSON output. |
 | **crawl-url** | Website crawler that saves pages as local markdown files for offline analysis. |
+
+## Usage Examples
+
+Once installed, Claude automatically uses these skills when relevant. Here are some example prompts:
+
+### Web Search Integration
+```
+"Add Tavily search to my agent so it can look up current information"
+"Help me implement web search using the Tavily API"
+```
+
+### Research
+```
+"Research the latest developments in quantum computing"
+"Run the research script on AI agent frameworks and save to report.json"
+```
+
+### Crawling
+```
+"Crawl the Stripe API docs and save them locally"
+"Download the React documentation for offline reference"
+```
+
 
 ## Links
 
