@@ -1,4 +1,4 @@
-# Tavily Claude Code Plugin
+# Tavily Claude Code Plugins
 
 Build AI applications with real-time web data using Tavily's search, extract, crawl, and research APIs.
 
@@ -23,15 +23,15 @@ Run these commands inside Claude Code:
 ### Option 1: From GitHub (Recommended)
 
 ```
-/plugin marketplace add tavily-ai/tavily-plugin
-/plugin install tavily@tavily-plugin
+/plugin marketplace add tavily-ai/tavily-plugins
+/plugin install tavily@tavily-plugins
 ```
 
 ### Option 2: From Local Directory
 
 ```
-/plugin marketplace add /path/to/tavily-plugin
-/plugin install tavily@tavily-plugin
+/plugin marketplace add /path/to/tavily-plugins
+/plugin install tavily@tavily-plugins
 ```
 
 ## Skills
@@ -70,7 +70,7 @@ Once installed, Claude automatically uses these skills when relevant. Here are s
 ## Links
 
 - [Tavily Documentation](https://docs.tavily.com)
-- [Tavily Plugin Repository](https://github.com/tavily-ai/tavily-plugin)
+- [Tavily Plugins Repository](https://github.com/tavily-ai/tavily-plugins)
 - [Tavily Cookbook](https://github.com/tavily-ai/tavily-cookbook)
 - [Get API Key](https://tavily.com)
 
