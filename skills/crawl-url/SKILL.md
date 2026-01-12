@@ -7,6 +7,20 @@ description: "Crawl any website and save pages as local markdown files. Use when
 
 Crawls websites using Tavily Crawl API and saves each page as a separate markdown file in a flat directory structure.
 
+## Prerequisites
+
+**Tavily API Key Required** - Get your key at https://tavily.com
+
+Add to `~/.claude/settings.json`:
+```json
+{
+  "env": {
+    "TAVILY_API_KEY": "tvly-your-api-key-here"
+  }
+}
+```
+
+Restart Claude Code after adding your API key.
 ## When to Use
 
 Use this skill when the user wants to:

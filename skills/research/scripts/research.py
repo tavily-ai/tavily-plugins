@@ -189,7 +189,8 @@ def research_streaming(
         model=model,
         stream=True,
         output_schema=schema,
-        citation_format=citation_format
+        citation_format=citation_format,
+        timeout=MAX_POLL_TIME
     )
 
     content_chunks = []
@@ -305,7 +306,8 @@ def research_polling(
         input=topic,
         model=model,
         output_schema=schema,
-        citation_format=citation_format
+        citation_format=citation_format,
+        timeout=MAX_POLL_TIME
     )
 
     request_id = result.get("request_id")

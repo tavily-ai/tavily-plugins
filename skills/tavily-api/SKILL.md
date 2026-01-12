@@ -5,6 +5,21 @@ description: "Build production-ready Tavily integrations with best practices bak
 
 Tavily is a specialized search API designed specifically for LLMs, enabling developers to build AI applications that can access real-time, accurate web data. Let's use the Python SDK to build with tavily.
 
+## Prerequisites
+
+**Tavily API Key Required** - Get your key at https://tavily.com
+
+Add to `~/.claude/settings.json`:
+```json
+{
+  "env": {
+    "TAVILY_API_KEY": "tvly-your-api-key-here"
+  }
+}
+```
+
+Restart Claude Code after adding your API key.
+
 # Tavily Python SDK
 
 ## Installation
