@@ -2,9 +2,9 @@
 
 Build AI applications with real-time web data using Tavily's search, extract, crawl, and research APIs.
 
-## Prerequisites
+### Step 1: Add Your API Key
 
-**Tavily API Key Required** - Get your key at https://tavily.com
+**Tavily API Key Required** — Get your key at https://tavily.com
 
 Add to your Claude Code settings (`~/.claude/settings.json`):
 
@@ -14,24 +14,35 @@ Add to your Claude Code settings (`~/.claude/settings.json`):
     "TAVILY_API_KEY": "tvly-your-api-key-here"
   }
 }
-```
+``` 
 
-## Installation
+### Step 2: Installation
 
 Run these commands inside Claude Code:
-
-### Option 1: From GitHub (Recommended)
 
 ```
 /plugin marketplace add tavily-ai/tavily-plugins
 /plugin install tavily@tavily-plugins
 ```
 
-### Option 2: From Local Directory
+### Step 3: Restart Claude Code
+
+Clear your session and restart to load the plugin:
 
 ```
-/plugin marketplace add /path/to/tavily-plugins
-/plugin install tavily@tavily-plugins
+/clear
+```
+
+Then press `Ctrl+C` to restart.
+
+### Step 4: Usage
+
+Use the skills by explicitly invoking via slash command, or let Claude decide when to use them:
+
+```
+/research
+/crawl-url
+/tavily-api
 ```
 
 ## Skills
@@ -65,7 +76,6 @@ Once installed, Claude automatically uses these skills when relevant. Here are s
 "Crawl the Stripe API docs and save them locally"
 "Download the React documentation for offline reference"
 ```
-
 
 ## Links
 
