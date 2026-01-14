@@ -5,7 +5,7 @@ description: "Find the best current deals/coupons for a specific product. Search
 
 # Deal Hunt
 
-Search for deals on any product. Returns raw Tavily search results - Claude analyzes them to find the best prices.
+Search for deals on any product using Tavily Research API. Returns comprehensive deal research for Claude to analyze.
 
 ## Prerequisites
 
@@ -20,67 +20,103 @@ Add to `~/.claude/settings.json`:
 }
 ```
 
-## Usage
+## Quick Start
+
+### Basic Deal Search
 
 ```bash
-# Search entire web (default - no domain filter)
-python scripts/deal_hunt.py "Dyson V15"
-
-# Multi-query search (max 3, runs in parallel, deduplicates results)
-python scripts/deal_hunt.py "AirPods Pro" --queries "AirPods Pro deal,AirPods Pro coupon,AirPods Pro discount"
-
-# Limit to specific sites
-python scripts/deal_hunt.py "MacBook Air" --domains amazon.com,walmart.com,bestbuy.com
-
-# Custom single query
-python scripts/deal_hunt.py "Nintendo Switch" --query "Nintendo Switch OLED bundle deal"
-
-# Fresh deals only
-python scripts/deal_hunt.py "PS5" --time-range day
+curl -N -X POST https://api.tavily.com/research \
+  -H "Authorization: Bearer $TAVILY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Find the best deals, coupon codes, and discounts for Sony WH-1000XM5 headphones. Search for: 1) Current sale prices and deals 2) Active coupon codes and promo codes 3) Discount offers and bundle deals",
+    "model": "mini",
+    "stream": true,
+    "citation_format": "numbered"
+  }'
 ```
 
-## CLI Parameters
+### With Specific Retailers
 
-| Option | Short | Default | Description |
-|--------|-------|---------|-------------|
-| `product` | - | Required | Product name |
-| `--query` | `-q` | `{product} deal price` | Single custom search query |
-| `--queries` | | None | Comma-separated queries (max 3), runs in parallel with dedup |
-| `--domains` | `-d` | None (search all) | Optionally limit to specific domains |
-| `--max-results` | `-n` | 10 | Number of results per query |
-| `--time-range` | `-t` | week | day, week, month, year, none |
-| `--search-depth` | `-s` | advanced | basic, advanced, fast, ultrafast |
-
-## Output
-
-Returns JSON with results:
-
-```json
-{
-  "meta": {
-    "product": "AirPods Pro",
-    "queries": ["AirPods Pro deal", "AirPods Pro coupon"],
-    "domains": null,
-    "time_range": "week",
-    "search_time": "2026-01-13T...",
-    "total_results": 15
-  },
-  "results": [
-    {
-      "title": "...",
-      "url": "https://...",
-      "content": "...",
-      "score": 0.95
-    }
-  ]
-}
+```bash
+curl -N -X POST https://api.tavily.com/research \
+  -H "Authorization: Bearer $TAVILY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Find the best deals, coupon codes, and discounts for MacBook Air M3 at Amazon, Best Buy, and Walmart. Search for: 1) Current sale prices and deals 2) Active coupon codes and promo codes 3) Discount offers and bundle deals",
+    "model": "mini",
+    "stream": true,
+    "citation_format": "numbered"
+  }'
 ```
 
-When using `--queries`, results are deduplicated by URL (highest score kept, content merged).
+### Gaming Console Example
+
+```bash
+curl -N -X POST https://api.tavily.com/research \
+  -H "Authorization: Bearer $TAVILY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Find the best deals, coupon codes, and discounts for PS5 console. Search for: 1) Current sale prices and deals 2) Active coupon codes and promo codes 3) Discount offers and bundle deals",
+    "model": "mini",
+    "stream": true,
+    "citation_format": "numbered"
+  }'
+```
+
+## API Reference
+
+### Endpoint
+
+```
+POST https://api.tavily.com/research
+```
+
+### Headers
+
+| Header | Value |
+|--------|-------|
+| `Authorization` | `Bearer <TAVILY_API_KEY>` |
+| `Content-Type` | `application/json` |
+
+### Request Body
+
+| Field | Type | Value | Description |
+|-------|------|-------|-------------|
+| `input` | string | Required | Research prompt including product and deal queries |
+| `model` | string | `"mini"` | Always use mini for deal searches |
+| `stream` | boolean | `true` | Stream results (single call, waits for completion) |
+| `citation_format` | string | `"numbered"` | Citation format for sources |
+
+### Input Prompt Template
+
+Always structure the input prompt to cover all deal types:
+
+```
+Find the best deals, coupon codes, and discounts for {PRODUCT}. Search for:
+1) Current sale prices and deals
+2) Active coupon codes and promo codes
+3) Discount offers and bundle deals
+```
+
+### Response Format
+
+Returns Server-Sent Events (SSE) with research content and sources:
+
+```
+event: chat.completion.chunk
+data: {"choices":[{"delta":{"content":"# Deal Research Results\n\n..."}}]}
+
+event: research.sources
+data: {"sources":[{"url":"https://...","title":"..."}]}
+
+event: done
+data: {"response_time":30.5}
+```
 
 ## Output Schema for Analysis
 
-After running the search, Claude should analyze results and structure findings as:
+After getting research results, Claude should structure findings as:
 
 ```json
 {
@@ -90,7 +126,7 @@ After running the search, Claude should analyze results and structure findings a
     "original_price": 399.99,
     "discount": "30% off",
     "retailer": "Amazon",
-    "url": "https://amazon.com/...",
+    "url": "https://...",
     "condition": "new",
     "in_stock": true
   },
@@ -100,12 +136,6 @@ After running the search, Claude should analyze results and structure findings a
       "retailer": "Amazon",
       "url": "https://...",
       "notes": "Prime shipping"
-    },
-    {
-      "price": 169.99,
-      "retailer": "eBay via Slickdeals",
-      "url": "https://...",
-      "notes": "Refurbished"
     }
   ],
   "coupons": [
@@ -116,7 +146,7 @@ After running the search, Claude should analyze results and structure findings a
       "expires": "2026-01-31"
     }
   ],
-  "summary": "Best new price is $279.99 at Amazon (30% off). Refurbished available for $169.99."
+  "summary": "Best new price is $279.99 at Amazon (30% off)."
 }
 ```
 

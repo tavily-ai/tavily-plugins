@@ -28,88 +28,126 @@ Add to `~/.claude/settings.json`:
 
 ## Quick Start
 
-> **Tip**: Research can take several minutes, especially with `--model pro`. Press **Ctrl+B** to run in the background and continue working while it completes.
+> **Tip**: Research can take 30-120 seconds. Press **Ctrl+B** to run in the background.
 
-### Basic Research (Polling Mode)
+### Basic Research
 
 ```bash
-python scripts/research.py "Latest developments in quantum computing"
+curl -N --request POST \
+  --url https://api.tavily.com/research \
+  --header "Authorization: Bearer $TAVILY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "input": "Latest developments in quantum computing",
+    "model": "mini",
+    "stream": true,
+    "citation_format": "numbered"
+  }'
 ```
+
+The `-N` flag disables buffering so you see streaming progress. The call waits until research completes.
 
 ### With Custom Schema
 
 ```bash
-python scripts/research.py "Electric vehicle market analysis" \
-  --schema ./schemas/market_analysis.json \
-  --model pro
-```
-
-### Streaming Mode
-
-```bash
-python scripts/research.py "AI agent frameworks comparison" --stream
-```
-
-### Save to File
-
-```bash
-python scripts/research.py "Rust async ecosystem" \
-  --output ./reports/rust_async.json \
-  --model pro
-```
-
-## CLI Reference
-
-| Option | Short | Default | Description |
-|--------|-------|---------|-------------|
-| `topic` | - | Required | Research topic or question |
-| `--schema` | `-s` | None | Path to JSON schema file or inline JSON |
-| `--stream` | - | False | Enable streaming mode |
-| `--model` | `-m` | `mini` | Model: `mini`, `pro`, `auto` |
-| `--citation` | `-c` | `numbered` | Citation format: `numbered`, `mla`, `apa`, `chicago` |
-| `--output` | `-o` | stdout | Output file path |
-| `--poll-interval` | `-p` | 5 | Seconds between polls (polling mode) |
-| `--quiet` | `-q` | False | Suppress progress output |
-
-## Output Format
-
-```json
-{
-  "meta": {
-    "topic": "Your research topic",
+curl -N --request POST \
+  --url https://api.tavily.com/research \
+  --header "Authorization: Bearer $TAVILY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "input": "Electric vehicle market analysis",
     "model": "pro",
-    "completed_at": "2025-01-08T14:30:00Z",
-    "response_time_seconds": 45.2
-  },
-  "content": "...",
-  "sources": [
-    {"url": "https://...", "title": "Source Title", "citation": "[1]"}
-  ]
-}
+    "stream": true,
+    "citation_format": "numbered",
+    "output_schema": {
+      "properties": {
+        "market_overview": {
+          "type": "string",
+          "description": "2-3 sentence overview of the market"
+        },
+        "key_players": {
+          "type": "array",
+          "description": "Major companies in this market",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string", "description": "Company name"},
+              "market_share": {"type": "string", "description": "Approximate market share"}
+            },
+            "required": ["name"]
+          }
+        }
+      },
+      "required": ["market_overview", "key_players"]
+    }
+  }'
 ```
 
-- **content**: Markdown string (default) or structured JSON (when schema provided)
-- **sources**: Array of citations used in the research
+## API Reference
+
+### Endpoint
+
+```
+POST https://api.tavily.com/research
+```
+
+### Headers
+
+| Header | Value |
+|--------|-------|
+| `Authorization` | `Bearer <TAVILY_API_KEY>` |
+| `Content-Type` | `application/json` |
+
+### Request Body
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `input` | string | Required | Research topic or question |
+| `model` | string | `"mini"` | Model: `mini`, `pro`, `auto` |
+| `stream` | boolean | `true` | Stream results (single call, waits for completion) |
+| `output_schema` | object | null | JSON schema for structured output |
+| `citation_format` | string | `"numbered"` | Citation format: `numbered`, `mla`, `apa`, `chicago` |
+
+### Response Format
+
+Returns Server-Sent Events (SSE) showing research progress and final results:
+
+```
+event: chat.completion.chunk
+data: {"choices":[{"delta":{"tool_calls":{"tool_call":[{"name":"Planning","arguments":"Initializing..."}]}}}]}
+
+event: chat.completion.chunk
+data: {"choices":[{"delta":{"tool_calls":{"tool_call":[{"name":"WebSearch","arguments":"Executing queries..."}]}}}]}
+
+event: chat.completion.chunk
+data: {"choices":[{"delta":{"content":"# Research Results\n\n..."}}]}
+
+event: research.sources
+data: {"sources":[{"url":"https://...","title":"Source Title"}]}
+
+event: done
+data: {"response_time":45.2}
+```
+
+Key events:
+- **Planning/WebSearch chunks**: Show research progress
+- **content chunks**: The actual research content (markdown or JSON if schema provided)
+- **sources**: Array of citations used
+- **done**: Final event with response time
+
+## Model Selection
+
+**Rule of thumb**: "what does X do?" → mini. "X vs Y vs Z" or "best way to..." → pro.
+
+| Model | Use Case | Speed |
+|-------|----------|-------|
+| `mini` | Single topic, targeted research | ~30s |
+| `pro` | Comprehensive multi-angle analysis | ~60-120s |
+| `auto` | API chooses based on complexity | Varies |
 
 ## Schema Usage
 
-Schemas make output structured and predictable. Provide via file path or inline JSON.
-
-### File Path
-
-```bash
-python scripts/research.py "topic" --schema ./my_schema.json
-```
-
-### Inline JSON
-
-```bash
-python scripts/research.py "topic" --schema '{"properties": {"summary": {"type": "string", "description": "Executive summary"}}}'
-```
-
-### Schema Requirements
-
-Every property **MUST** include both `type` and `description`:
+Schemas make output structured and predictable. Every property **MUST** include both `type` and `description`.
 
 ```json
 {
@@ -130,39 +168,68 @@ Every property **MUST** include both `type` and `description`:
 
 See `references/schema.json` for complete schema rules and examples.
 
-## Model Selection
-
-**Rule of thumb**: "what does X do?" → mini. "X vs Y vs Z" or "best way to..." → pro.
-
-| Model | Use Case | Speed |
-|-------|----------|-------|
-| `mini` | Single topic, targeted research | Fast |
-| `pro` | Comprehensive multi-angle analysis, open ended | Slower |
-| `auto` | API chooses based on topic complexity | Varies |
-
-
 ## Examples
 
 ### Market Research
 
 ```bash
-python scripts/research.py "Fintech startup landscape 2025" \
-  --schema ./schemas/market_research.json \
-  --model pro \
-  --output ./reports/fintech_2025.json
+curl -N --request POST \
+  --url https://api.tavily.com/research \
+  --header "Authorization: Bearer $TAVILY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "input": "Fintech startup landscape 2025",
+    "model": "pro",
+    "stream": true,
+    "citation_format": "numbered",
+    "output_schema": {
+      "properties": {
+        "market_overview": {"type": "string", "description": "Executive summary of fintech market"},
+        "top_startups": {
+          "type": "array",
+          "description": "Notable fintech startups",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string", "description": "Startup name"},
+              "focus": {"type": "string", "description": "Primary business focus"},
+              "funding": {"type": "string", "description": "Total funding raised"}
+            },
+            "required": ["name", "focus"]
+          }
+        },
+        "trends": {"type": "array", "description": "Key market trends", "items": {"type": "string"}}
+      },
+      "required": ["market_overview", "top_startups"]
+    }
+  }'
 ```
 
 ### Technical Comparison
 
 ```bash
-python scripts/research.py "LangGraph vs CrewAI for multi-agent systems" \
-  --model pro \
-  --citation mla
+curl -N --request POST \
+  --url https://api.tavily.com/research \
+  --header "Authorization: Bearer $TAVILY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "input": "LangGraph vs CrewAI for multi-agent systems",
+    "model": "pro",
+    "stream": true,
+    "citation_format": "mla"
+  }'
 ```
 
 ### Quick Overview
 
 ```bash
-python scripts/research.py "What is retrieval augmented generation?" --quiet
+curl -N --request POST \
+  --url https://api.tavily.com/research \
+  --header "Authorization: Bearer $TAVILY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "input": "What is retrieval augmented generation?",
+    "model": "mini",
+    "stream": true
+  }'
 ```
-
