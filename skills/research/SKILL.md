@@ -28,6 +28,8 @@ Add to `~/.claude/settings.json`:
 
 ## Quick Start
 
+> **Tip**: Research can take several minutes, especially with `--model pro`. Press **Ctrl+B** to run in the background and continue working while it completes.
+
 ### Basic Research (Polling Mode)
 
 ```bash
@@ -63,7 +65,7 @@ python scripts/research.py "Rust async ecosystem" \
 | `topic` | - | Required | Research topic or question |
 | `--schema` | `-s` | None | Path to JSON schema file or inline JSON |
 | `--stream` | - | False | Enable streaming mode |
-| `--model` | `-m` | `auto` | Model: `mini`, `pro`, `auto` |
+| `--model` | `-m` | `mini` | Model: `mini`, `pro`, `auto` |
 | `--citation` | `-c` | `numbered` | Citation format: `numbered`, `mla`, `apa`, `chicago` |
 | `--output` | `-o` | stdout | Output file path |
 | `--poll-interval` | `-p` | 5 | Seconds between polls (polling mode) |
@@ -161,8 +163,6 @@ python scripts/research.py "LangGraph vs CrewAI for multi-agent systems" \
 ### Quick Overview
 
 ```bash
-python scripts/research.py "What is retrieval augmented generation?" \
-  --model mini \
-  --quiet
+python scripts/research.py "What is retrieval augmented generation?" --quiet
 ```
 

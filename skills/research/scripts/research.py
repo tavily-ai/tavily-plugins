@@ -33,7 +33,7 @@ SCRIPT_DIR = Path(__file__).parent
 REPO_ROOT = SCRIPT_DIR.parent.parent.parent.parent
 
 DEFAULT_POLL_INTERVAL = 5
-DEFAULT_MODEL = "auto"
+DEFAULT_MODEL = "mini"
 DEFAULT_CITATION_FORMAT = "numbered"
 MAX_POLL_TIME = 600  # 10 minutes
 
