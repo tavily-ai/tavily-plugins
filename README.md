@@ -43,6 +43,7 @@ Use the skills by explicitly invoking via slash command, or let Claude decide wh
 /research
 /crawl-url
 /tavily-api
+/deal-hunt
 ```
 
 ## Skills
@@ -54,6 +55,7 @@ The plugin includes three skills that Claude can use automatically:
 | **tavily-api** | Reference documentation for Tavily's search, extract, crawl, and research APIs. Claude uses this automatically when you ask it to integrate Tavily into your code. |
 | **research** | CLI tool for AI-synthesized research with citations. Supports structured JSON output. |
 | **crawl-url** | Website crawler that saves pages as local markdown files for offline analysis. |
+| **deal-hunt** | Find the best deals and coupons for any product. Searches the web and returns results for price comparison. |
 
 ## Usage Examples
 
@@ -75,6 +77,13 @@ Once installed, Claude automatically uses these skills when relevant. Here are s
 ```
 "Crawl the Stripe API docs and save them locally"
 "Download the React documentation for offline reference"
+```
+
+### Deal Hunting
+```
+"Find the best deals on AirPods Pro right now"
+"Search for PS5 discounts and coupon codes"
+"What's the cheapest price for a Dyson V15 this week?"
 ```
 
 ## Links
