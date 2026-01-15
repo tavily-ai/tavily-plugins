@@ -86,6 +86,32 @@ Once installed, Claude automatically uses these skills when relevant. Here are s
 "What's the cheapest price for a Dyson V15 this week?"
 ```
 
+## Development
+
+### Testing a Branch
+
+To test a new skill or feature from a specific branch, first remove the existing plugin, then add from your branch:
+
+```
+/plugin marketplace remove tavily-plugins
+/plugin marketplace add tavily-ai/tavily-plugins#your-branch-name
+/plugin enable tavily@tavily-plugins
+```
+
+This allows you to test changes before merging to main.
+
+### Updating the Plugin
+
+When releasing a new version or adding new skills, update the following:
+
+**Version (both files must match):**
+1. `.claude-plugin/plugin.json` - update the `"version"` field
+2. `.claude-plugin/marketplace.json` - update the `"version"` field inside the `plugins` array
+
+**README (when adding/removing skills):**
+1. Update the [Skills](#skills) table with the new skill name and description
+2. Update the [Usage Examples](#usage-examples) section with use cases
+
 ## Links
 
 - [Tavily Documentation](https://docs.tavily.com)

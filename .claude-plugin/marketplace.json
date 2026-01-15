@@ -13,7 +13,7 @@
       "name": "tavily",
       "source": "./",
       "description": "Build AI applications with real-time web data using Tavily's search, extract, crawl, and research APIs.",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Tavily Team",
         "email": "dean.sacoransky@tavily.com"
